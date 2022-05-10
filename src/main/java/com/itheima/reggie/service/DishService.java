@@ -18,4 +18,6 @@ public interface DishService extends IService<Dish> {
     //修改菜品状态
     public void haltSales(List<String> ids);
     public void startSales(List<String> ids);
+    //删除菜品
+    void delete(List<String> ids);
 }

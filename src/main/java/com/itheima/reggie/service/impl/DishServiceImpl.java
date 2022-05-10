@@ -3,12 +3,15 @@ package com.itheima.reggie.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.itheima.reggie.common.CustomException;
 import com.itheima.reggie.dto.DishDto;
 import com.itheima.reggie.entity.Dish;
 import com.itheima.reggie.entity.DishFlavor;
+import com.itheima.reggie.entity.SetmealDish;
 import com.itheima.reggie.mapper.DishMapper;
 import com.itheima.reggie.service.DishFlavorService;
 import com.itheima.reggie.service.DishService;
+import com.itheima.reggie.service.SetmealDishService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -21,7 +24,13 @@ import java.util.stream.Collectors;
 public class DishServiceImpl extends ServiceImpl<DishMapper, Dish> implements DishService {
 
     @Autowired
+    private DishService dishService;
+
+    @Autowired
     private DishFlavorService dishFlavorService;
+
+    @Autowired
+    private SetmealDishService setmealDishService;
 
     /**
      * 新增菜品，同时保存对应的口味数据
@@ -118,5 +127,28 @@ public class DishServiceImpl extends ServiceImpl<DishMapper, Dish> implements Di
         updateWrapper.set(Dish::getStatus,1);
 
         this.update(updateWrapper);
+    }
+
+    /**
+     * 删除套餐
+     * @param ids
+     */
+    @Override
+    public void delete(List<String> ids) {
+
+        //查询套餐中是否包含该菜品
+        LambdaQueryWrapper<SetmealDish> setmealDishLambdaQueryWrapper = new LambdaQueryWrapper<>();
+        setmealDishLambdaQueryWrapper.in(SetmealDish::getDishId,ids);
+
+        List<SetmealDish> setmealDishes = setmealDishService.list(setmealDishLambdaQueryWrapper);
+        if(setmealDishes != null && setmealDishes.size() > 0){
+            throw new CustomException("套餐中正在售卖该菜品，不能删除");
+        }
+
+        LambdaQueryWrapper<Dish> dishLambdaQueryWrapper = new LambdaQueryWrapper<>();
+        dishLambdaQueryWrapper.in(Dish::getId,ids);
+
+        //删除菜品
+        dishService.remove(dishLambdaQueryWrapper);
     }
 }
