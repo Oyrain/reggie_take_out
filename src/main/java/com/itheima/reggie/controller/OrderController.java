@@ -65,12 +65,8 @@ public class OrderController {
     @PutMapping
     public R<String> sendOrder(@RequestBody Orders order){
         log.info("order:{}",order);
-        boolean flag = orderService.updateById(order);
-        if (flag){
-            return R.success("修改订单状态完成");
-        }else {
-            return R.success("修改订单状态失败");
-        }
+        orderService.updateById(order);
+        return R.success("修改订单状态完成");
     }
 
 }
