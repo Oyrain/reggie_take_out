@@ -101,7 +101,8 @@ public class UserController {
     }
 
     /**
-     * 移动端退出登录
+     *
+     * @param request
      * @return
      */
     @PostMapping("/loginout")
