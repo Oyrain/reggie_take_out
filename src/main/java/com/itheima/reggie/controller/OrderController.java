@@ -11,6 +11,8 @@ import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @Slf4j
 @RequestMapping("/order")
@@ -67,6 +69,25 @@ public class OrderController {
         log.info("order:{}",order);
         orderService.updateById(order);
         return R.success("修改订单状态完成");
+    }
+
+    /**
+     * 获取用户的订单信息
+     * @param page
+     * @param pageSize
+     * @return
+     */
+    @GetMapping("/userPage")
+    public R<Page> userPage(int page,int pageSize){
+        Page<Orders> pageInfo = new Page<>(page,pageSize);
+
+        //设置分页条件
+        LambdaQueryWrapper<Orders> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.orderByDesc(Orders::getOrderTime);
+
+        orderService.page(pageInfo,queryWrapper);
+
+        return R.success(pageInfo);
     }
 
 }
